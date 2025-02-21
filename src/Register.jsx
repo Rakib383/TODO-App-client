@@ -87,7 +87,7 @@ export const Register = () => {
     }
 
     return (
-        <div className="relative w-full h-screen   flex items-center justify-center gap-8 pt-28 md:pt-32 md:px-16 ">
+        <div className="relative w-full h-screen   flex items-center justify-center gap-8 pt-8 md:pt-12 md:px-16 ">
             <ToastContainer
                 position="top-center"
                 autoClose={4000}
