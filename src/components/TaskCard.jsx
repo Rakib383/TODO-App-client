@@ -5,7 +5,7 @@ import { CiEdit } from "react-icons/ci";
 import { MdDeleteOutline } from "react-icons/md";
 
 
-const TaskCard = ({ task }) => {
+const TaskCard = ({ task,reset }) => {
     // Format timestamp to a readable string
     const formattedDate = new Date(task.timestamp).toLocaleString();
 
@@ -33,7 +33,11 @@ const TaskCard = ({ task }) => {
                 </span>
 
                 <div className="flex gap-3">
-                    <CiEdit className="cursor-pointer text-xl" />
+                    <CiEdit onClick={() => {
+                        document.getElementById('updateModal').showModal()
+                        
+                        reset(task)
+                    }} className="cursor-pointer text-xl" />
                     <MdDeleteOutline  className="cursor-pointer text-xl" />
                 </div>
 

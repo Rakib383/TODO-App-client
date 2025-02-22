@@ -26,6 +26,7 @@ const App = () => {
     "In Progress": [],
     "Done": []
   })
+
   const axiosPublic = useAxiosPublic()
 
   useEffect(() => {
@@ -38,11 +39,11 @@ const App = () => {
       }
       axiosPublic.get(`/tasks?uid=${user.uid}`)
         .then(res => {
-         
+
           res.data.forEach(task => {
             newColumns[task.category].push(task)
           })
-          
+
           setColumns(newColumns)
 
         })
@@ -70,6 +71,48 @@ const App = () => {
     reset();
     // Close the modal using the native dialog method.
     document.getElementById('addModal').close();
+
+  }
+
+  const handleUpdateTask = (updatedTask) => {
+
+    setColumns(prev => {
+      // Create a new columns object
+      const updatedColumns = { ...prev };
+      let originalCategory = null;
+
+      // Remove the task from the column using filter
+      Object.keys(updatedColumns).forEach((category) => {
+        // Check if this column contains the task, and if so, record its category
+        if (updatedColumns[category].some(task => task._id === updatedTask._id)) {
+          originalCategory = category;
+        }
+        // Filter out the task from the column
+        updatedColumns[category] = updatedColumns[category].filter(task => task._id !== updatedTask._id);
+      });
+
+      // Determine the new category for the task.
+      const newCategory = updatedTask.category
+
+      // Insert the updated task into the new category array
+      updatedColumns[newCategory] = [
+        ...updatedColumns[newCategory],
+        updatedTask
+      ];
+
+      return updatedColumns;
+    });
+
+    // Send update request to backend
+    axiosPublic.patch(`/tasks/${updatedTask._id}`, updatedTask)
+      .then(res => console.log(res.data))
+      .catch(err => {
+        console.error("Failed to update task:", err);
+
+      });
+
+    // Close the modal using the native dialog method.
+    document.getElementById('updateModal').close();
 
   }
 
@@ -220,7 +263,80 @@ const App = () => {
         </div>
       </dialog>
 
-      
+      {/* update-task modal */}
+      <dialog id="updateModal" className="modal open">
+        <div className="modal-box p-5">
+          <h3 className="text-xl font-bold mb-4 text-center">Update Task</h3>
+          <form className="space-y-4 text-black" onSubmit={handleSubmit(handleUpdateTask)}>
+            {/* Title Field */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text text-black mb-1.5">
+                  Title (max 50 characters)
+                </span>
+              </label>
+              <input
+                type="text"
+                placeholder="Task title"
+                maxLength={50}
+                className="input input-bordered w-full"
+                {...register("title", { required: "Title is required" })}
+              />
+              {errors.title && (
+                <span className="text-red-500 text-sm">{errors.title.message}</span>
+              )}
+            </div>
+
+            {/* Description Field */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text text-black mb-1.5">
+                  Description (optional)
+                </span>
+              </label>
+              <textarea
+                placeholder="Task description"
+                className="textarea textarea-bordered w-full"
+                {...register("description")}
+              />
+            </div>
+
+            {/* Category Dropdown */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text text-black mb-1.5">Category</span>
+              </label>
+              <select
+                className="select select-bordered w-full"
+                {...register("category", { required: "Category is required" })}
+              >
+                <option value="To-Do">To-Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+              </select>
+              {errors.category && (
+                <span className="text-red-500 text-sm">{errors.category.message}</span>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="modal-action flex justify-end space-x-2">
+              <button
+                onClick={() => document.getElementById('updateModal').close()}
+                type="button"
+                className="btn btn-ghost"
+              >
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Update
+              </button>
+            </div>
+          </form>
+        </div>
+      </dialog>
+
+
 
       {/* all-tasks container*/}
 
@@ -233,7 +349,7 @@ const App = () => {
           <div className="flex  flex-col gap-4 px-4 ">
 
             {
-              columns["To-Do"].map((task, idx) => <TaskCard key={idx} task={task} />)
+              columns["To-Do"].map((task, idx) => <TaskCard  reset={reset} key={idx} task={task} />)
             }
 
 
@@ -248,7 +364,7 @@ const App = () => {
           <div className="flex flex-col gap-4 px-4">
 
             {
-              columns["In Progress"].map((task, idx) => <TaskCard key={idx} task={task} />)
+              columns["In Progress"].map((task, idx) => <TaskCard key={idx}  reset={reset} task={task} />)
             }
 
 
@@ -263,7 +379,7 @@ const App = () => {
           <div className="flex flex-col gap-4 px-4">
 
             {
-              columns["Done"].map((task, idx) => <TaskCard key={idx} task={task} />)
+              columns["Done"].map((task, idx) => <TaskCard  reset={reset} key={idx} task={task} />)
             }
 
 
