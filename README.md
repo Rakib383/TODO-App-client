@@ -10,11 +10,9 @@
 
 This is a Task Management Application where users can efficiently manage their tasks by adding, editing, deleting, and reordering them through a drag-and-drop interface. Tasks are categorized into three sections:
 
-To-Do
-
-In Progress
-
-Done
+- To-Do
+- In Progress
+- Done
 
 All changes are instantly saved to the database to maintain persistence. The application is built with a clean, minimalistic UI and is fully responsive for both desktop and mobile users.
 
@@ -24,35 +22,35 @@ This project uses the following dependencies:
 
 Frontend:
 
-React 19
+- React 19
 
-React Router DOM
+- React Router DOM
 
-Tailwind CSS
+- Tailwind CSS
 
-DaisyUI
+- DaisyUI
 
-React Icons
+- React Icons
 
-React Hook Form
+- React Hook Form
 
-React Toastify
+- React Toastify
 
-SweetAlert2
+- SweetAlert2
 
-@dnd-kit/core (Drag and Drop)
+- @dnd-kit/core (Drag and Drop)
 
 Backend & Database:
 
-Firebase (Real-time database & authentication)
+- Firebase (Real-time database & authentication)
 
-Axios (HTTP requests)
+- Axios (HTTP requests)
 
 Development Tools:
 
-Vite
+- Vite
 
-ESLint
+- ESLint
 
 🛠️ Installation & Setup
 
@@ -60,7 +58,7 @@ Follow these steps to run the project locally:
 
 Clone the repository
 
-git clone https://github.com/your-username/todo-app.git
+git clone https://github.com/Rakib383/TODO-App-client
 cd todo-app
 
 Install dependencies
@@ -83,23 +81,4 @@ npm run dev
 Build for production
 
 npm run build
-
-Preview the build
-
-
-🏗️ Technologies Used
-
-Frontend: React, Tailwind CSS, DaisyUI
-
-Backend: Firebase
-
-State Management: React State & Context API
-
-Drag & Drop: @dnd-kit/core
-
-Form Handling: React Hook Form
-
-Notifications: React Toastify, SweetAlert2
-
-Development & Build Tool: Vite
 
