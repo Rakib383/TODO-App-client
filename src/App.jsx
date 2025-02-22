@@ -15,11 +15,20 @@ import { useAxiosPublic } from './hooks/useAxiosPublic';
 const App = () => {
 
   const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
+    register: registerAdd,
+    handleSubmit: handleSubmitAdd,
+    reset: resetAdd,
+    formState: { errors: errorsAdd },
   } = useForm();
+
+  const {
+    register: registerUpdate,
+    handleSubmit: handleSubmitUpdate,
+    reset: resetUpdate,
+    formState: { errors: errorsUpdate },
+  } = useForm();
+
+
   const { user, logOut } = useContext(AuthContext)
   const [columns, setColumns] = useState({
     "To-Do": [],
@@ -52,6 +61,7 @@ const App = () => {
   }, [user])
 
   const handleAddTask = (newTask) => {
+    // console.log(newTask);
     newTask.timestamp = new Date().toISOString()
     newTask._id = Date.now()
     newTask.userID = user.uid
@@ -62,14 +72,13 @@ const App = () => {
     }))
 
     axiosPublic.post("/tasks", newTask)
-      .then(res => {
-        console.log(res.data);
+      .then(() => {
+        // console.log(res.data);
       })
       .catch(err => console.log(err))
 
-    // Reset the form
-    reset();
-    // Close the modal using the native dialog method.
+      resetAdd()
+    // Close the modal 
     document.getElementById('addModal').close();
 
   }
@@ -121,9 +130,9 @@ const App = () => {
     setColumns(prev => {
       // Create a new columns object
       const updatedColumns = { ...prev };
-     
 
-     updatedColumns[deleteTask.category] = updatedColumns[deleteTask.category].filter(task => task._id !== deleteTask._id)
+
+      updatedColumns[deleteTask.category] = updatedColumns[deleteTask.category].filter(task => task._id !== deleteTask._id)
 
       return updatedColumns;
     });
@@ -213,10 +222,10 @@ const App = () => {
       </div>
 
       {/* add task modal */}
-      <dialog id="addModal" className="modal open">
+      <dialog id="addModal" className="modal ">
         <div className="modal-box p-5">
           <h3 className="text-xl font-bold mb-4 text-center">Add New Task</h3>
-          <form className="space-y-4 text-black" onSubmit={handleSubmit(handleAddTask)}>
+          <form className="space-y-4 text-black" onSubmit={handleSubmitAdd(handleAddTask)}>
             {/* Title Field */}
             <div className="form-control">
               <label className="label">
@@ -228,11 +237,12 @@ const App = () => {
                 type="text"
                 placeholder="Task title"
                 maxLength={50}
+                defaultValue=""
                 className="input input-bordered w-full"
-                {...register("title", { required: "Title is required" })}
+                {...registerAdd("title", { required: "Title is required" })}
               />
-              {errors.title && (
-                <span className="text-red-500 text-sm">{errors.title.message}</span>
+              {errorsAdd.title && (
+                <span className="text-red-500 text-sm">{errorsAdd.title.message}</span>
               )}
             </div>
 
@@ -246,7 +256,7 @@ const App = () => {
               <textarea
                 placeholder="Task description"
                 className="textarea textarea-bordered w-full"
-                {...register("description")}
+                {...registerAdd("description")}
               />
             </div>
 
@@ -257,14 +267,14 @@ const App = () => {
               </label>
               <select
                 className="select select-bordered w-full"
-                {...register("category", { required: "Category is required" })}
+                {...registerAdd("category", { required: "Category is required" })}
               >
                 <option value="To-Do">To-Do</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Done">Done</option>
               </select>
-              {errors.category && (
-                <span className="text-red-500 text-sm">{errors.category.message}</span>
+              {errorsAdd.category && (
+                <span className="text-red-500 text-sm">{errorsAdd.category.message}</span>
               )}
             </div>
 
@@ -286,10 +296,11 @@ const App = () => {
       </dialog>
 
       {/* update-task modal */}
+
       <dialog id="updateModal" className="modal open">
         <div className="modal-box p-5">
           <h3 className="text-xl font-bold mb-4 text-center">Update Task</h3>
-          <form className="space-y-4 text-black" onSubmit={handleSubmit(handleUpdateTask)}>
+          <form className="space-y-4 text-black" onSubmit={handleSubmitUpdate(handleUpdateTask)}>
             {/* Title Field */}
             <div className="form-control">
               <label className="label">
@@ -302,10 +313,10 @@ const App = () => {
                 placeholder="Task title"
                 maxLength={50}
                 className="input input-bordered w-full"
-                {...register("title", { required: "Title is required" })}
+                {...registerUpdate("title", { required: "Title is required" })}
               />
-              {errors.title && (
-                <span className="text-red-500 text-sm">{errors.title.message}</span>
+              {errorsUpdate.title && (
+                <span className="text-red-500 text-sm">{errorsUpdate.title.message}</span>
               )}
             </div>
 
@@ -319,7 +330,7 @@ const App = () => {
               <textarea
                 placeholder="Task description"
                 className="textarea textarea-bordered w-full"
-                {...register("description")}
+                {...registerUpdate("description")}
               />
             </div>
 
@@ -330,14 +341,14 @@ const App = () => {
               </label>
               <select
                 className="select select-bordered w-full"
-                {...register("category", { required: "Category is required" })}
+                {...registerUpdate("category", { required: "Category is required" })}
               >
                 <option value="To-Do">To-Do</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Done">Done</option>
               </select>
-              {errors.category && (
-                <span className="text-red-500 text-sm">{errors.category.message}</span>
+              {errorsUpdate.category && (
+                <span className="text-red-500 text-sm">{errorsUpdate.category.message}</span>
               )}
             </div>
 
@@ -371,7 +382,7 @@ const App = () => {
           <div className="flex  flex-col gap-4 px-4 ">
 
             {
-              columns["To-Do"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} reset={reset} key={idx} task={task} />)
+              columns["To-Do"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} resetUpdate={resetUpdate} key={idx} task={task} />)
             }
 
 
@@ -386,7 +397,7 @@ const App = () => {
           <div className="flex flex-col gap-4 px-4">
 
             {
-              columns["In Progress"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} key={idx} reset={reset} task={task} />)
+              columns["In Progress"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} key={idx} resetUpdate={resetUpdate} task={task} />)
             }
 
 
@@ -401,7 +412,7 @@ const App = () => {
           <div className="flex flex-col gap-4 px-4">
 
             {
-              columns["Done"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} reset={reset} key={idx} task={task} />)
+              columns["Done"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} resetUpdate={resetUpdate} key={idx} task={task} />)
             }
 
 

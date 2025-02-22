@@ -9,12 +9,13 @@ import {
 import { Login } from './Login.jsx';
 import { Register } from './Register.jsx';
 import { AuthProvider } from './AuthProvider.jsx';
+import { PrivateRoute } from './PrivateRoute';
 
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <PrivateRoute><App /></PrivateRoute>,
   },
   {
     path: "/login",
