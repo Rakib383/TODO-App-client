@@ -5,7 +5,7 @@ import { CiEdit } from "react-icons/ci";
 import { MdDeleteOutline } from "react-icons/md";
 
 
-const TaskCard = ({ task,reset }) => {
+const TaskCard = ({ task,reset,handleDeleteTask }) => {
     // Format timestamp to a readable string
     const formattedDate = new Date(task.timestamp).toLocaleString();
 
@@ -38,7 +38,7 @@ const TaskCard = ({ task,reset }) => {
                         
                         reset(task)
                     }} className="cursor-pointer text-xl" />
-                    <MdDeleteOutline  className="cursor-pointer text-xl" />
+                    <MdDeleteOutline onClick={() =>handleDeleteTask(task)} className="cursor-pointer text-xl" />
                 </div>
 
 

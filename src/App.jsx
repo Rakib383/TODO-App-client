@@ -105,7 +105,7 @@ const App = () => {
 
     // Send update request to backend
     axiosPublic.patch(`/tasks/${updatedTask._id}`, updatedTask)
-      .then(res => console.log(res.data))
+      // .then(res => console.log(res.data))
       .catch(err => {
         console.error("Failed to update task:", err);
 
@@ -113,6 +113,28 @@ const App = () => {
 
     // Close the modal using the native dialog method.
     document.getElementById('updateModal').close();
+
+  }
+
+  const handleDeleteTask = (deleteTask) => {
+
+    setColumns(prev => {
+      // Create a new columns object
+      const updatedColumns = { ...prev };
+     
+
+     updatedColumns[deleteTask.category] = updatedColumns[deleteTask.category].filter(task => task._id !== deleteTask._id)
+
+      return updatedColumns;
+    });
+
+    // Send update request to backend
+    axiosPublic.delete(`/tasks/${deleteTask._id}`)
+      // .then(res => console.log(res.data))
+      .catch(err => {
+        console.error("Failed to update task:", err);
+
+      });
 
   }
 
@@ -349,7 +371,7 @@ const App = () => {
           <div className="flex  flex-col gap-4 px-4 ">
 
             {
-              columns["To-Do"].map((task, idx) => <TaskCard  reset={reset} key={idx} task={task} />)
+              columns["To-Do"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} reset={reset} key={idx} task={task} />)
             }
 
 
@@ -364,7 +386,7 @@ const App = () => {
           <div className="flex flex-col gap-4 px-4">
 
             {
-              columns["In Progress"].map((task, idx) => <TaskCard key={idx}  reset={reset} task={task} />)
+              columns["In Progress"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} key={idx} reset={reset} task={task} />)
             }
 
 
@@ -379,7 +401,7 @@ const App = () => {
           <div className="flex flex-col gap-4 px-4">
 
             {
-              columns["Done"].map((task, idx) => <TaskCard  reset={reset} key={idx} task={task} />)
+              columns["Done"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} reset={reset} key={idx} task={task} />)
             }
 
 
