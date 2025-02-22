@@ -11,6 +11,8 @@ import { MdOutlineDone } from "react-icons/md";
 import { RiProgress2Line } from "react-icons/ri";
 import { useForm } from 'react-hook-form';
 import { useAxiosPublic } from './hooks/useAxiosPublic';
+import { DndContext, useDroppable } from "@dnd-kit/core";
+
 
 const App = () => {
 
@@ -35,11 +37,16 @@ const App = () => {
     "In Progress": [],
     "Done": []
   })
+  const [tasks, setTasks] = useState([])
+
+  const { setNodeRef } = useDroppable({ id: "To-Do" });
+  const { setNodeRef: setInProgressRef } = useDroppable({ id: "In Progress" });
+  const { setNodeRef: setDoneRef } = useDroppable({ id: "Done" });
 
   const axiosPublic = useAxiosPublic()
 
   useEffect(() => {
-
+    // console.log("To-Do Droppable ID:", todoId);
     if (user) {
       const newColumns = {
         "To-Do": [],
@@ -48,7 +55,7 @@ const App = () => {
       }
       axiosPublic.get(`/tasks?uid=${user.uid}`)
         .then(res => {
-
+          setTasks(res.data)
           res.data.forEach(task => {
             newColumns[task.category].push(task)
           })
@@ -59,6 +66,18 @@ const App = () => {
     }
 
   }, [user])
+
+  const handleDragEnd = (event) => {
+
+    const { active, over } = event
+    // console.log(active, over);
+    if (!over) return;
+
+    const taskId = active.id
+    const newCategory = over.id
+    setTasks(() => tasks.map((task => task._id === taskId ? { ...task, category: newCategory } : task)))
+
+  }
 
   const handleAddTask = (newTask) => {
     // console.log(newTask);
@@ -77,7 +96,7 @@ const App = () => {
       })
       .catch(err => console.log(err))
 
-      resetAdd()
+    resetAdd()
     // Close the modal 
     document.getElementById('addModal').close();
 
@@ -146,12 +165,6 @@ const App = () => {
       });
 
   }
-
-
-  // [#83dbf2]
-
-
-
 
   return (
     <div>
@@ -237,7 +250,6 @@ const App = () => {
                 type="text"
                 placeholder="Task title"
                 maxLength={50}
-                defaultValue=""
                 className="input input-bordered w-full"
                 {...registerAdd("title", { required: "Title is required" })}
               />
@@ -370,57 +382,60 @@ const App = () => {
       </dialog>
 
 
+      <DndContext activationConstraint={{ delay: 150, tolerance: 5 }} onDragEnd={handleDragEnd}>
 
-      {/* all-tasks container*/}
+        {/* all-tasks container*/}
 
-      <div className="px-5 pt-36 flex flex-col md:flex-row flex-wrap items-center md:items-start justify-center w-full pb-10 gap-5">
+        <div className="px-5 pt-36 flex flex-col md:flex-row flex-wrap items-center md:items-start justify-center w-full pb-10 gap-5">
 
-        {/* todo tasks */}
-        <div className="bg-gray-200 pb-7 rounded-lg w-72 sm:w-80 ">
-          <h3 className="flex items-center justify-center py-1 gap-1 font-bold bg-blue-200 text-blue-900 w-fit px-3 rounded-sm mx-auto my-2 mb-3"><FaRegCircleDot className="text-sm " />TO DO</h3>
-          {/* tasks container */}
-          <div className="flex  flex-col gap-4 px-4 ">
 
-            {
-              columns["To-Do"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} resetUpdate={resetUpdate} key={idx} task={task} />)
-            }
+          {/* todo tasks */}
+          <div ref={setNodeRef} className="bg-gray-200 pb-7 rounded-lg w-72 sm:w-80 ">
+            <h3 className="flex items-center justify-center py-1 gap-1 font-bold bg-blue-200 text-blue-900 w-fit px-3 rounded-sm mx-auto my-2 mb-3"><FaRegCircleDot className="text-sm " />TO DO</h3>
+            {/* tasks container */}
+            <div className="flex  flex-col gap-4 px-4 ">
 
+              {
+                columns["To-Do"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} resetUpdate={resetUpdate} key={idx} task={task} />)
+              }
+
+
+            </div>
+
+          </div>
+
+          {/* In Progress tasks */}
+          <div ref={setInProgressRef} className="bg-gray-200 pb-7 rounded-lg w-72 sm:w-80 ">
+            <h3 className="flex items-center justify-center py-1 gap-1 font-bold bg-yellow-500 text-black w-fit px-3 rounded-md mx-auto my-2 mb-3"><RiProgress2Line className="text-md" />In Progress</h3>
+            {/* tasks */}
+            <div className="flex flex-col gap-4 px-4">
+
+              {
+                columns["In Progress"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} key={idx} resetUpdate={resetUpdate} task={task} />)
+              }
+
+
+            </div>
+
+          </div>
+
+          {/* Done tasks */}
+          <div ref={setDoneRef} className="bg-gray-200 pb-7 rounded-lg w-72 sm:w-80 ">
+            <h3 className="flex items-center justify-center py-1 gap-1 font-bold bg-green-500 text-white w-fit px-3 rounded-md mx-auto my-2 mb-3"><MdOutlineDone className="text-lg " />Done</h3>
+            {/* tasks */}
+            <div className="flex flex-col gap-4 px-4">
+
+              {
+                columns["Done"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} resetUpdate={resetUpdate} key={idx} task={task} />)
+              }
+
+
+            </div>
 
           </div>
 
         </div>
-
-        {/* In Progress tasks */}
-        <div className="bg-gray-200 pb-7 rounded-lg w-72 sm:w-80 ">
-          <h3 className="flex items-center justify-center py-1 gap-1 font-bold bg-yellow-500 text-black w-fit px-3 rounded-md mx-auto my-2 mb-3"><RiProgress2Line className="text-md" />In Progress</h3>
-          {/* tasks */}
-          <div className="flex flex-col gap-4 px-4">
-
-            {
-              columns["In Progress"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} key={idx} resetUpdate={resetUpdate} task={task} />)
-            }
-
-
-          </div>
-
-        </div>
-
-        {/* Done tasks */}
-        <div className="bg-gray-200 pb-7 rounded-lg w-72 sm:w-80 ">
-          <h3 className="flex items-center justify-center py-1 gap-1 font-bold bg-green-500 text-white w-fit px-3 rounded-md mx-auto my-2 mb-3"><MdOutlineDone className="text-lg " />Done</h3>
-          {/* tasks */}
-          <div className="flex flex-col gap-4 px-4">
-
-            {
-              columns["Done"].map((task, idx) => <TaskCard handleDeleteTask={handleDeleteTask} resetUpdate={resetUpdate} key={idx} task={task} />)
-            }
-
-
-          </div>
-
-        </div>
-
-      </div>
+      </DndContext>
 
 
     </div>
